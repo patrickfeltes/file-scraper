@@ -1,5 +1,5 @@
 # PDF Scraper
-This script will save all PDFs from a webpage to your computer. Useful for downloading lecture notes, etc from webpages.
+This script will save all files with specific extensions from a webpage to your computer. Useful for downloading lecture notes, etc from webpages.
 
 ## Installation
 Run `pip install -r requirements.txt`
