@@ -12,20 +12,35 @@ def get_all_links(url):
     soup = BeautifulSoup(text, 'html.parser')
     return list(map(lambda x : x.get('href'), soup.find_all('a')))
 
-def get_all_pdf_links(url):
-    links = get_all_links(url)
-    return list(filter(lambda s : s.endswith('.pdf'), links))
+def get_all_images(url):
+    data = get_link_data(url)
+    text = data.decode('utf-8')
+    soup = BeautifulSoup(text, 'html.parser')
+    return list(map(lambda x : x.get('src'), soup.find_all('img')))
 
-def download_all_pdfs(url, folder):
-    # try to make a folder, don't make it if it's already there
+def get_all_files(url):
+    return get_all_links(url) + get_all_images(url)
+
+def get_all_extension_links(url, extensions):
+    links = get_all_files(url)
+    lst = []
+    print(links)
+    for exten in extensions:
+        for link in links:
+            if link.endswith(exten):
+                print(link)
+                lst.append(link)
+    return lst
+
+def download_all_files(url, folder, extensions):
     try:
         os.makedirs(folder)
-    except OSError:
+    except:
         pass
 
-    pdf_links = get_all_pdf_links(url)
-    
-    for link in pdf_links:
+    links = get_all_extension_links(url, extensions)
+
+    for link in links:
         filename = link[link.rfind('/') + 1:]
         with open(os.path.join(folder, filename), 'wb') as f:
             # if the link is relative, join it with the initial url
@@ -38,5 +53,10 @@ def download_all_pdfs(url, folder):
 
 if __name__ == '__main__':
     url = input('Please enter a url to scrape: ')
-    folder = input('Enter a folder name to save files in. If you want the current folder, press enter.')
-    download_all_pdfs(url, folder)
+    folder = input('Enter a folder name to save files in. If you want the current folder, press enter. ')
+    extensions = input('Enter file extensions to download as a comma separated list (ex: pdf, png, jpg) ')
+    extensions = extensions.split(',')
+    # remove periods from the beginning of file extensions if they exist
+    extensions = list(map(lambda x: x[1:] if x[0] == '.' else x, extensions))
+
+    download_all_files(url, folder, extensions)
