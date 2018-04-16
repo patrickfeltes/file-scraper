@@ -24,11 +24,9 @@ def get_all_files(url):
 def get_all_extension_links(url, extensions):
     links = get_all_files(url)
     lst = []
-    print(links)
     for exten in extensions:
         for link in links:
             if link.endswith(exten):
-                print(link)
                 lst.append(link)
     return lst
 
@@ -42,13 +40,15 @@ def download_all_files(url, folder, extensions):
 
     for link in links:
         filename = link[link.rfind('/') + 1:]
-        with open(os.path.join(folder, filename), 'wb') as f:
+        actual_filename = os.path.join(folder, filename)
+
+        with open(actual_filename, 'wb') as f:
             # if the link is relative, join it with the initial url
             if not link.startswith('http'):
                 link = urljoin(url, link)
 
             print('Downloading:', link)
-            data = get_link_data(link)
+            data = urlopen(link).read()
             f.write(data)
 
 if __name__ == '__main__':
@@ -57,6 +57,6 @@ if __name__ == '__main__':
     extensions = input('Enter file extensions to download as a comma separated list (ex: pdf, png, jpg) ')
     extensions = extensions.split(',')
     # remove periods from the beginning of file extensions if they exist
-    extensions = list(map(lambda x: x[1:] if x[0] == '.' else x, extensions))
+    extensions = list(map(lambda x: x[1:].strip() if x[0] == '.' else x.strip(), extensions))
 
     download_all_files(url, folder, extensions)
